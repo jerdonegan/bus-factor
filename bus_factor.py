@@ -40,30 +40,33 @@ def main():
     if args.to_json:
         authors_df.to_json(f'{git_name}_authors.json')
         critical_contributions.to_json(f'{git_name}_critical.json')
-        print(f'Files Saved to {os.getcwd()}')
+        print(f'Files Saved to {os.getcwd()}\{git_name}_critical.json')
 
     if args.to_csv:
         authors_df.to_csv(f'{git_name}_authors.csv')
         critical_contributions.to_csv(f'{git_name}_critical.csv')
-        print(f'Files Saved to {os.getcwd()}')
+        print(f'Files Saved to {os.getcwd()}\{git_name}_critical.csv')
 
 
 def get_args():
     parser = argparse.ArgumentParser()
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
 
-    parser.add_argument('-g', '--git_url',
+    required.add_argument('-g', '--git_url',
                         help='Url for Git Repo',
-                        action='store')
+                        action='store',
+                        required=True)
 
-    parser.add_argument('-s','--save_plots',
+    optional.add_argument('-s','--save_plots',
                         help="Save Plots",
                         action='store_true')
 
-    parser.add_argument('-j','--to_json',
+    optional.add_argument('-j','--to_json',
                         help="Output data to json",
                         action='store_true')
 
-    parser.add_argument('-c','--to_csv',
+    optional.add_argument('-c','--to_csv',
                         help="Output data to CSV",
                         action='store_true')
 
