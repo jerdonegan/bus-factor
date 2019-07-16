@@ -23,6 +23,9 @@ def main():
     authors = get_authors_contribution(files, repo)
 
     authors_df = create_dataframe(authors)
+    
+    if len(authors_df) == 1:
+        sys.exit("There is only 1 Contributer, Bye")
 
     critical_threshold = .5
     critical_contributions = get_bus_factor(authors_df, critical_threshold)
@@ -82,11 +85,14 @@ def get_repo(path, git_url):
         print(f'Repo in {path}')
         repo.git.checkout('HEAD', force=True)
     except git.exc.NoSuchPathError:
-        sys.exit('Repo does not exist')
-    except:
-        repo = Repo.clone_from(git_url, path, branch='master')
-        print(f'Repo Cloned to {path}')
-
+        repo = None
+    if repo is None:
+        try:
+            repo = Repo.clone_from(git_url, path, branch='master')
+            print(f'Repo Cloned to {path}')
+        except git.exc.NoSuchPathError:
+            sys.exit('Repo Does Not Exist')
+            
     return repo
 
 def get_authors_contribution(files, repo):
