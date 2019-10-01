@@ -23,7 +23,7 @@ def main():
     authors = get_authors_contribution(files, repo)
 
     authors_df = create_dataframe(authors)
-    
+
     if len(authors_df) == 1:
         sys.exit("There is only 1 Contributer, Bye")
 
@@ -34,11 +34,11 @@ def main():
     print(critical_contributions[['name', 'line_count']])
 
     if args.save_plots:
-        plot_busfactor(authors_df,
-                       critical_contributions,
-                       critical_threshold,
-                       git_name)
-        plot_critical_contributors(critical_contributions, git_name)
+        print(plot_busfactor(authors_df,
+                            critical_contributions,
+                            critical_threshold,
+                            git_name))
+        print(plot_critical_contributors(critical_contributions, git_name))
 
     if args.to_json:
         authors_df.to_json(f'{git_name}_authors.json')
@@ -92,7 +92,7 @@ def get_repo(path, git_url):
             print(f'Repo Cloned to {path}')
         except git.exc.NoSuchPathError:
             sys.exit('Repo Does Not Exist')
-            
+
     return repo
 
 def get_authors_contribution(files, repo):
@@ -184,7 +184,7 @@ def plot_busfactor(authors_df, critical_contributions,
 
     filename = f'{git_name}_bus_factor.png'
     fig.savefig(filename)
-    print(f'Bus factor Plot saved as: {os.getcwd()}\{filename}')
+    return f'Bus factor Plot saved as: {os.getcwd()}\{filename}'
 
 def plot_critical_contributors(critical_contributions, git_name):
     plt.style.use('default')
@@ -210,7 +210,7 @@ def plot_critical_contributors(critical_contributions, git_name):
 
     filename = f'{git_name}_critical_contributors.png'
     fig.savefig(filename)
-    print(f'Critical Contributors Plot saved as: {os.getcwd()}\{filename}')
+    return f'Critical Contributors Plot saved as: {os.getcwd()}\{filename}'
 
 if __name__ == '__main__':
     main()
