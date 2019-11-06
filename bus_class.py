@@ -82,7 +82,10 @@ class BusFactor:
         self.authors = {}
         for file in self._files:
             for commit, lines in self.repo.blame('HEAD', file):
-                self.authors[commit.author.name] = count_lines(lines)
+                if commit.author.name in self.authors.keys():
+                    self.authors[commit.author.name] += count_lines(lines)
+                else:
+                    self.authors[commit.author.name] = count_lines(lines)
 
 
     def _create_dataframe(self):
@@ -94,7 +97,7 @@ class BusFactor:
             orient='index'
             ).reset_index()
         df.columns = ['author', 'lines']
-        df = df.groupby('author').sum()
+        # df = df.groupby('author').sum()
         df = df.reset_index().sort_values(
             'lines',
             ascending=False
