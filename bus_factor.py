@@ -138,7 +138,11 @@ def create_dataframe(authors):
     return authors_df.reset_index(drop=True)
 
 def get_bus_factor(authors_df, critical_threshold):
-    return authors_df[authors_df.total_line_percent < critical_threshold]
+    bus_factor = authors_df[authors_df.total_line_percent < critical_threshold]
+    if not(bus_factor.empty):
+        return bus_factor
+    else:
+        return authors_df.iloc[1,:]
 
 def plot_busfactor(authors_df, critical_contributions,
                    critical_threshold, git_name):

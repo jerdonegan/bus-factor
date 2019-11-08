@@ -11,15 +11,17 @@ from matplotlib.ticker import PercentFormatter
 
 class BusFactor:
 
-    def __init__(self, repo_url):
+    def __init__(self, repo_url, critical_threshold=.5):
         self.repo_url = repo_url
-        self._critical_threshold = .5
+        self._critical_threshold = critical_threshold
         self._create_path()
         self._clone_repo()
         self._get_files()
         self._get_authors()
         self._create_dataframe()
         self._get_critical_contributers()
+        self._plot_busfactor()
+        self._plot_critical_contributors()
 
 
     @property
@@ -37,6 +39,8 @@ class BusFactor:
         """
         self._critical_threshold = ct
         self._get_critical_contributers()
+        self._plot_busfactor()
+        self._plot_critical_contributors()
 
 
     def _create_path(self):
@@ -136,35 +140,7 @@ class BusFactor:
         return file_path
 
 
-    def to_json(self, orient='columns', path=None):
-        """
-
-        """
-        file_path = self._get_path(path)
-        gn = self.git_name.replace('-', '_')
-        a = f'{file_path}/authors_{gn}.json'
-        self.authors_df.to_json(a, orient=orient)
-        cc = f'{file_path}/critical_contributers_{gn}.json'
-        self.critical_contributers_df.to_json(cc, orient=orient)
-
-        return f'Files saved to:\n\t{a}\n\t{cc}'
-
-
-    def to_csv(self, path=None):
-        """
-
-        """
-        file_path = self._get_path(path)
-        gn = self.git_name.replace('-', '_')
-        a = f'{file_path}/authors_{gn}.csv'
-        self.authors_df.to_csv(a)
-        cc = f'{file_path}/critical_contributers_{gn}.csv'
-        self.critical_contributers_df.to_csv(cc)
-
-        return f'Files saved to:\n\t{a}\n\t{cc}'
-
-
-    def plot_busfactor(self, path=None):
+    def _plot_busfactor(self, path=None):
         """
 
         """
@@ -204,15 +180,20 @@ class BusFactor:
             verticalalignment='bottom',
         )
         ax.legend()
+        self.bus_factor_plot = fig
+        plt.close()
 
+    def save_bus_factor_plot(self, path=None):
+        """
+
+        """
         file_path = self._get_path(path)
         gn = self.git_name.replace('-', '_')
         fp = f'{file_path}/bus_factor_{gn}.png'
-        fig.savefig(fp)
+        self.bus_factor_plot.savefig(fp)
+        return f'Bus Factor Plot saved as: {fp}'
 
-        return f'Bus factor Plot saved as: {fp}'
-
-    def plot_critical_contributors(self, path=None):
+    def _plot_critical_contributors(self, path=None):
         """
         """
         cc = self.critical_contributers_df.shape[0]
@@ -236,9 +217,16 @@ class BusFactor:
         plt.title(title)
         plt.tight_layout()
 
+        self.critical_contributers_fig = fig
+        plt.close()
+
+    def save_critical_plot(self, path=None):
+        """
+
+        """
         file_path = self._get_path(path)
         gn = self.git_name.replace('-', '_')
         fp = f'{file_path}/critical_contributers_{gn}.png'
-        fig.savefig(fp)
+        self.critical_contributers_fig.savefig(fp)
 
         return f'Critical Contributers Plot saved as: {fp}'
