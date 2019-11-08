@@ -102,7 +102,7 @@ class BusFactor:
             ).reset_index()
         df.columns = ['author', 'lines']
         # df = df.groupby('author').sum()
-        df = df.reset_index().sort_values(
+        df = df.reset_index(drop=True).sort_values(
             'lines',
             ascending=False
             )
@@ -112,7 +112,7 @@ class BusFactor:
         df['total_line_percent'] = df.total_line_count/df.lines.sum()
         df['line_percent'] = df.lines/df.lines.sum()
 
-        self.authors_df = df.reset_index().drop('index', axis=1)
+        self.authors_df = df.reset_index(drop=True)
 
 
     def _get_critical_contributers(self):
