@@ -1,7 +1,7 @@
 
 # Bus Factor
 
-Clone a git repo and find out who has contributed the most. 
+Clone a git repo and find out who has contributed the most.
 
 
 ```python
@@ -24,7 +24,7 @@ print(f'The critical contributor threshold is {cc}')
 ```
 
     The critical contributor threshold is 0.5
-    
+
 
 ### View the authors dataframe
 
@@ -36,20 +36,6 @@ bf.authors_df
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -342,7 +328,7 @@ print(bf.save_bus_factor_plot())
 ```
 
     Bus Factor Plot saved as: ******
-    
+
 
 ### View and plot the critical contributors
 
@@ -354,20 +340,6 @@ bf.critical_contributers_df
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -414,7 +386,7 @@ print(bf.save_critical_plot())
 ```
 
     Critical Contributers Plot saved as: *****
-    
+
 
 ### Change the critical threshold and plot the critical contributors
 
