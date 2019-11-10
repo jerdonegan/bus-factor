@@ -11,9 +11,10 @@ from matplotlib.ticker import PercentFormatter
 
 class BusFactor:
 
-    def __init__(self, repo_url, critical_threshold=.5):
+    def __init__(self, repo_url, critical_threshold=.5, path=None):
         self.repo_url = repo_url
         self._critical_threshold = critical_threshold
+        self.path = path
         self._create_path()
         self._clone_repo()
         self._get_files()
@@ -27,7 +28,7 @@ class BusFactor:
     @property
     def critical_threshold(self):
         """
-
+        View the critical threshold.
         """
         return self._critical_threshold
 
@@ -35,8 +36,12 @@ class BusFactor:
     @critical_threshold.setter
     def critical_threshold(self, ct):
         """
-
+        Set the critical Threshold.
+        Input:
+            ct: (Float) Critical Threshold between 0 and 1
         """
+        msg = 'Crtitcal Threshold should be a float between 0 and 1'
+        assert (ct >= 0) & (ct <= 1), msg
         self._critical_threshold = ct
         self._get_critical_contributers()
         self._plot_busfactor()
@@ -45,30 +50,36 @@ class BusFactor:
 
     def _create_path(self):
         """
-
+        Create a folder for the git repo. If path is not set path will be set
+        as base user folder.
         """
-        path = os.path.expanduser(f'~/')
+        if self.path is None:
+            self.path = os.path.expanduser(f'~/')
         self.git_name = self.repo_url.rsplit('/',1)[1]
-        self.path = os.path.join(path, self.git_name)
+        self.path = os.path.join(self.path, self.git_name)
         if not os.path.exists(self.path):
             os.mkdir(self.path)
 
 
     def _clone_repo(self):
         """
-
+        Clone the repo.
+        If repo is in path newest update is pulled.
+        If repo is not already cloned master branch is cloned
         """
         try:
             self.repo = Repo(self.path)
-            print(f'Repo is in {self.path}')
             self.repo.git.checkout('HEAD', force=True)
+            self.repo.remotes.origin.pull()
+            return f'Repo is in {self.path}'
         except:# [git.exc.NoSuchPathError, git.exc.InvalidGitRepositoryError]:
             self.repo = Repo.clone_from(self.repo_url, self.path, branch='master')
-            print(f'Repo Cloned to {self.path}')
+            return f'Repo Cloned to {self.path}'
+
 
     def _get_files(self):
         """
-
+        Creates a list of files in the repo
         """
         self._files = self.repo.git.execute(
             'git ls-tree --full-tree -r --name-only HEAD'
@@ -77,9 +88,11 @@ class BusFactor:
 
     def _get_authors(self):
         """
-
+        Loop through files and get authors and number of lines by each author
+        for each file. Creates a dictionary or authors and number of lines
         """
         def count_lines(lines):
+            # Skip blank lines
             used_lines = [l for l in lines if l.strip() != '']
             return len(used_lines)
 
@@ -94,14 +107,14 @@ class BusFactor:
 
     def _create_dataframe(self):
         """
-
+        Creat a datrframe of authors and lines from dictionary.
+        Dataframe is sorted and extra columns added
         """
         df = pd.DataFrame.from_dict(
             self.authors,
             orient='index'
             ).reset_index()
         df.columns = ['author', 'lines']
-        # df = df.groupby('author').sum()
         df = df.reset_index(drop=True).sort_values(
             'lines',
             ascending=False
@@ -117,11 +130,14 @@ class BusFactor:
 
     def _get_critical_contributers(self):
         """
-
+        Find all the critical contributers.
+        Crfitical contributers are minimun number of authors to maintain
+        the repo.
         """
         self.critical_contributers_df = self.authors_df[
             self.authors_df.total_line_percent < self._critical_threshold
         ]
+        # Returns the author with the most lines if the dataframe is empty
         if self.critical_contributers_df.empty:
             self.critical_contributers_df = pd.DataFrame(
                 self.authors_df.iloc[0, :]
@@ -130,7 +146,7 @@ class BusFactor:
 
     def _get_path(self, path):
         """
-
+        If a path is supplied, supplies path is returned else cwd.
         """
         if path:
             file_path = path
@@ -142,7 +158,7 @@ class BusFactor:
 
     def _plot_busfactor(self, path=None):
         """
-
+        Create a plot of the bus factor.
         """
         ct_label = f'{self.critical_threshold*100:.0f}% Critical Threshold'
         cc = self.critical_contributers_df.shape[0]
@@ -183,9 +199,10 @@ class BusFactor:
         self.bus_factor_plot = fig
         plt.close()
 
+
     def save_bus_factor_plot(self, path=None):
         """
-
+        Save the bus factor plot
         """
         file_path = self._get_path(path)
         gn = self.git_name.replace('-', '_')
@@ -193,8 +210,10 @@ class BusFactor:
         self.bus_factor_plot.savefig(fp)
         return f'Bus Factor Plot saved as: {fp}'
 
+
     def _plot_critical_contributors(self, path=None):
         """
+        Create the critical contributiors plot
         """
         cc = self.critical_contributers_df.shape[0]
         plt.style.use('default')
@@ -222,7 +241,7 @@ class BusFactor:
 
     def save_critical_plot(self, path=None):
         """
-
+        Save the critical contributers plot
         """
         file_path = self._get_path(path)
         gn = self.git_name.replace('-', '_')
